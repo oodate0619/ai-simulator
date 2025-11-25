@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AIがあなたの業務をどう変えるか、今すぐ体験してください">
+    <meta property="og:title" content="AI業務体験シミュレーター">
+    <meta property="og:description" content="コスト削減診断、AI日報作成、AI POP生成を無料で体験">
+    <meta property="og:type" content="website">
+    <title>AI業務体験シミュレーター</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<section id="simulator" class="section-spacing px-4 bg-white py-16">
+    <div class="container mx-auto max-w-5xl">
+        <div class="text-center mb-12 max-w-3xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-900">体験シミュレーター</h2>
+            <p class="text-base text-gray-600">AIがあなたの業務をどう変えるか、今すぐ体験してください</p>
+        </div>
+
+        <div class="flex gap-3 justify-center mb-10 flex-wrap" role="tablist">
+            <button class="sim-tab px-6 py-2.5 rounded-lg border border-gray-200 text-gray-700 font-semibold transition-all duration-300 hover:bg-gray-50 focus:outline-none"
+                    data-target="#sim-roi" aria-selected="true">
+                💰 【全業種】コスト削減診断
+            </button>
+            <button class="sim-tab px-6 py-2.5 rounded-lg border border-gray-200 text-gray-700 font-semibold transition-all duration-300 hover:bg-gray-50 focus:outline-none"
+                    data-target="#sim-construction">
+                🏗️ 【建設】AI日報作成
+            </button>
+            <button class="sim-tab px-6 py-2.5 rounded-lg border border-gray-200 text-gray-700 font-semibold transition-all duration-300 hover:bg-gray-50 focus:outline-none"
+                    data-target="#sim-restaurant">
+                🍝 【飲食】AI POP生成
+            </button>
+        </div>
+
+        <div id="sim-roi" class="sim-panel">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6">あなたの会社の現状</h3>
+                    <div class="space-y-5">
+                        <div class="grid grid-cols-2 gap-4">
+                            <label class="block">
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">平均時給</span>
+                                <div class="relative">
+                                    <input id="roi-wage" type="number" value="2000" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 font-mono text-right focus:ring-2 focus:ring-blue-600 outline-none">
+                                    <span class="absolute right-3 top-2.5 text-gray-500">円</span>
+                                </div>
+                            </label>
+                            <label class="block">
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">対象人数</span>
+                                <div class="relative">
+                                    <input id="roi-people" type="number" value="5" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 font-mono text-right focus:ring-2 focus:ring-blue-600 outline-none">
+                                    <span class="absolute right-3 top-2.5 text-gray-500">人</span>
+                                </div>
+                            </label>
+                        </div>
+                        <label class="block">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">1人あたり月間削減時間（想定）</span>
+                            <div class="relative">
+                                <input id="roi-hours" type="number" value="20" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 font-mono text-right focus:ring-2 focus:ring-blue-600 outline-none bg-blue-50">
+                                <span class="absolute right-3 top-2.5 text-gray-500">時間</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">※AI導入で月20時間は平均的な削減幅です</p>
+                        </label>
+                        <button id="roi-run" class="mt-4 w-full bg-gray-900 text-white font-bold py-4 rounded-lg shadow-lg hover:bg-gray-800 hover:translate-y-0.5 transition-all duration-200">
+                            削減効果を試算する
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-8 rounded-lg border border-gray-200 shadow-inner relative overflow-hidden">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">診断結果</h3>
+                    
+                    <div id="roi-loading" class="hidden absolute inset-0 bg-white/80 flex items-center justify-center z-10 backdrop-blur-sm">
+                        <div class="flex flex-col items-center">
+                            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-900 mb-3"></div>
+                            <p class="text-sm font-semibold text-gray-600">コスト算出中...</p>
+                        </div>
+                    </div>
+
+                    <div id="roi-result-content" class="opacity-50 blur-sm transition-all duration-500">
+                         <div class="text-center py-4">
+                            <p class="text-sm text-gray-500 mb-1">年間で浮くコスト（利益）</p>
+                            <p class="text-4xl md:text-5xl font-black text-blue-700 tracking-tight" id="roi-total-display">¥0</p>
+                        </div>
+
+                        <div class="mt-8 space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-gray-600 mb-1">
+                                    <span>人件費削減</span>
+                                    <span id="roi-bar-labor-val">¥0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                    <div id="roi-bar-labor" class="bg-blue-500 h-4 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-gray-600 mb-1">
+                                    <span>ミス・手戻り削減価値</span>
+                                    <span id="roi-bar-error-val">¥0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                    <div id="roi-bar-error" class="bg-green-500 h-4 rounded-full transition-all duration-1000 ease-out" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 p-4 bg-yellow-50 border border-yellow-100 rounded-lg text-sm text-yellow-800">
+                            <p class="font-bold flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                経営者様へ
+                            </p>
+                            <p class="mt-1">この浮いた予算で、新しい集客施策や社員への還元が可能です。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sim-construction" class="sim-panel hidden">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-lg border border-gray-200 shadow-sm flex flex-col">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">現場の雑なメモ（入力）</h3>
+                    <textarea id="con-input" class="w-full flex-grow p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none text-sm leading-relaxed resize-none bg-gray-50" placeholder="例：今日は晴れ。A邸の配管工事完了。明日から内装入る予定。トラブル特になし。">天気：晴れ。
+Bビルの足場解体完了。
+資材置き場の整理もやった。
+明日からはC地点の塗装に入る。
+特に問題なし。</textarea>
+                    <button id="con-run" class="mt-4 w-full bg-blue-700 text-white font-bold py-3 rounded-lg shadow hover:bg-blue-800 transition-colors flex items-center justify-center gap-2">
+                        <span>✨ AIで日報に変換</span>
+                    </button>
+                </div>
+                <div class="bg-gray-900 p-8 rounded-lg shadow-lg text-white relative min-h-[300px]">
+                    <h3 class="text-sm font-bold text-gray-400 mb-4 uppercase tracking-wider">AI Output</h3>
+                    
+                    <div id="con-loading" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 z-10">
+                        <div class="flex space-x-2 mb-4">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                            <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </div>
+                        <p class="text-blue-400 text-sm font-mono animate-pulse">文章構造を解析中...</p>
+                    </div>
+
+                    <div id="con-result" class="font-mono text-sm leading-relaxed whitespace-pre-wrap text-gray-300">ここに生成結果が表示されます。
+左側のボックスに現場の状況を入力してボタンを押してください。</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sim-restaurant" class="sim-panel hidden">
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-lg border border-gray-200 shadow-sm">
+                    <h3 class="text-lg font-bold text-gray-900 mb-6">メニュー情報入力</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">料理名</label>
+                            <input id="pop-name" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-pink-500 outline-none" value="至高のオムライス">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">アピールポイント</label>
+                            <input id="pop-copy" class="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-pink-500 outline-none" value="ふわとろ卵とデミグラスソース">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">ターゲット層</label>
+                            <select id="pop-target" class="w-full border border-gray-300 rounded-lg p-3">
+                                <option value="emotional">20代女性（エモい感じ）</option>
+                                <option value="powerful">サラリーマン（ガッツリ）</option>
+                                <option value="luxury">シニア層（高級感）</option>
+                            </select>
+                        </div>
+                        <button id="pop-run" class="mt-2 w-full bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold py-3 rounded-lg shadow hover:opacity-90 transition-opacity">
+                            🎨 AIでデザイン生成
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-100 p-4 rounded-lg border border-gray-200 shadow-inner flex items-center justify-center min-h-[320px] relative overflow-hidden">
+                    
+                    <div id="pop-loading" class="hidden absolute inset-0 bg-white/90 z-20 flex flex-col items-center justify-center">
+                        <svg class="animate-spin h-8 w-8 text-pink-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="text-pink-600 text-sm font-bold">キャッチコピー生成中...</p>
+                    </div>
+
+                    <div id="pop-result" class="hidden relative w-64 h-80 bg-white shadow-2xl transform transition-all duration-500 scale-95 opacity-0 rotate-1">
+                        <div class="absolute inset-0 bg-gray-800">
+                            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover opacity-60" alt="Food bg">
+                        </div>
+                        <div class="absolute inset-0 p-6 flex flex-col justify-center items-center text-center text-white">
+                            <p id="pop-res-catch" class="text-xl font-serif font-bold mb-2 drop-shadow-md leading-tight">
+                                卵が踊る、<br>至福のひととき。
+                            </p>
+                            <div class="w-10 h-0.5 bg-white mb-3"></div>
+                            <p id="pop-res-name" class="text-sm font-bold tracking-widest mb-4">至高のオムライス</p>
+                            <span class="bg-white text-black text-xs px-3 py-1 rounded-full font-bold">Now on Sale</span>
+                        </div>
+                    </div>
+                    
+                    <p id="pop-placeholder" class="text-gray-400 text-sm font-bold">ここにデザインが生成されます</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Simulator Logic
+    (function(){
+        // 1. Tab Switching (Common)
+        const tabs = document.querySelectorAll('.sim-tab');
+        const panels = document.querySelectorAll('.sim-panel');
+        
+        function activateTab(targetId) {
+            tabs.forEach(t => {
+                const isSelected = t.dataset.target === targetId;
+                t.setAttribute('aria-selected', isSelected);
+                if(isSelected) {
+                    t.classList.add('bg-blue-900', 'text-white', 'border-blue-900');
+                    t.classList.remove('text-gray-700', 'border-gray-200', 'hover:bg-gray-50');
+                } else {
+                    t.classList.remove('bg-blue-900', 'text-white', 'border-blue-900');
+                    t.classList.add('text-gray-700', 'border-gray-200', 'hover:bg-gray-50');
+                }
+            });
+            panels.forEach(p => {
+                if('#' + p.id === targetId) {
+                    p.classList.remove('hidden');
+                    p.classList.add('animate-fadeIn');
+                } else {
+                    p.classList.add('hidden');
+                }
+            });
+        }
+
+        tabs.forEach(btn => {
+            btn.addEventListener('click', () => activateTab(btn.dataset.target));
+        });
+        activateTab('#sim-roi'); // Init
+
+        // Helper: Format Currency
+        const fmtMoney = num => '¥' + Math.round(num).toLocaleString();
+        const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+        // 2. ROI Calculator (Visual & Animated)
+        const roiBtn = document.getElementById('roi-run');
+        roiBtn.addEventListener('click', async () => {
+            const wage = +document.getElementById('roi-wage').value;
+            const people = +document.getElementById('roi-people').value;
+            const hours = +document.getElementById('roi-hours').value;
+            
+            // UI Loading
+            const loading = document.getElementById('roi-loading');
+            const content = document.getElementById('roi-result-content');
+            
+            loading.classList.remove('hidden');
+            content.classList.add('blur-sm', 'opacity-50');
+            
+            await wait(1200); // "Thinking" time
+
+            // Calc
+            const laborMonthly = wage * people * hours;
+            const errorValMonthly = laborMonthly * 0.1; // Assuming 10% efficiency gain on quality
+            const totalYearly = (laborMonthly + errorValMonthly) * 12;
+
+            // Update Text
+            document.getElementById('roi-total-display').textContent = fmtMoney(totalYearly);
+            document.getElementById('roi-bar-labor-val').textContent = fmtMoney(laborMonthly * 12);
+            document.getElementById('roi-bar-error-val').textContent = fmtMoney(errorValMonthly * 12);
+
+            // Update Graph Bars (Simple logic relative to max width)
+            document.getElementById('roi-bar-labor').style.width = '80%';
+            document.getElementById('roi-bar-error').style.width = '20%';
+
+            // UI Reveal
+            loading.classList.add('hidden');
+            content.classList.remove('blur-sm', 'opacity-50');
+        });
+
+        // 3. Construction AI (Dynamic Text Simulation)
+        const conBtn = document.getElementById('con-run');
+        conBtn.addEventListener('click', async () => {
+            const input = document.getElementById('con-input').value;
+            const loading = document.getElementById('con-loading');
+            const result = document.getElementById('con-result');
+            
+            loading.classList.remove('hidden');
+            result.classList.add('opacity-20');
+
+            await wait(1500); // Fake API Latency
+
+            // Simple Dynamic Extraction Logic
+            const lines = input.split('\n');
+            const weatherLine = lines.find(l => l.includes('天気')) || '天気：記載なし';
+            const tasks = lines.filter(l => !l.includes('天気') && l.length > 2);
+            
+            // Create "AI" Response
+            const aiText = `【工事日報】
+📅 作成日：${new Date().toLocaleDateString()}
+🌤 ${weatherLine.replace(/[。、]/g, '')}
+
+✅ 本日の作業実績
+${tasks.map(t => `・${t.replace(/[。、]/g, '')}`).join('\n')}
+
+📈 進捗状況
+予定通り進行中。上記作業完了に伴い、次工程への引継ぎ準備良し。
+
+⚠️ 特記事項
+安全確認実施済み。ヒヤリハット報告なし。
+
+-------------------
+(AIコメント)
+お疲れ様です！「${tasks[0] ? tasks[0].substring(0, 5) : '作業'}」の完了確認しました。明日の段取りも今のうちに共有しておきましょう。`;
+
+            result.textContent = aiText;
+            
+            loading.classList.add('hidden');
+            result.classList.remove('opacity-20');
+        });
+
+        // 4. Restaurant POP AI (Visual Generator)
+        const popBtn = document.getElementById('pop-run');
+        popBtn.addEventListener('click', async () => {
+            const name = document.getElementById('pop-name').value;
+            const copy = document.getElementById('pop-copy').value;
+            const target = document.getElementById('pop-target').value;
+            
+            const loading = document.getElementById('pop-loading');
+            const resultCard = document.getElementById('pop-result');
+            const placeholder = document.getElementById('pop-placeholder');
+            
+            loading.classList.remove('hidden');
+            resultCard.classList.add('hidden');
+            placeholder.classList.add('hidden');
+
+            await wait(2000); // Longer wait for "Image Generation"
+
+            // Dynamic Copywriting based on Target
+            let aiCatch = "";
+            let bgImage = "";
+            let fontClass = "";
+
+            if(target === 'emotional') {
+                aiCatch = `その一口が、<br>私を優しくする。`;
+                bgImage = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=600&q=80";
+                fontClass = "font-serif";
+            } else if (target === 'powerful') {
+                aiCatch = `本能が求める<br>圧倒的ウマさ！`;
+                bgImage = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=80";
+                fontClass = "font-sans font-black";
+            } else {
+                aiCatch = `素材の息吹を、<br>そのままに。`;
+                bgImage = "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=600&q=80";
+                fontClass = "font-serif italic";
+            }
+
+            // DOM Update
+            document.getElementById('pop-res-name').textContent = name;
+            document.getElementById('pop-res-catch').innerHTML = aiCatch;
+            document.getElementById('pop-res-catch').className = `text-xl mb-2 drop-shadow-md leading-tight ${fontClass}`;
+            resultCard.querySelector('img').src = bgImage;
+
+            loading.classList.add('hidden');
+            resultCard.classList.remove('hidden');
+            
+            // Animation Trigger
+            setTimeout(() => {
+                resultCard.classList.remove('scale-95', 'opacity-0', 'rotate-1');
+                resultCard.classList.add('scale-100', 'opacity-100', 'rotate-0');
+            }, 50);
+        });
+
+    })();
+</script>
+
+</body>
+</html>
